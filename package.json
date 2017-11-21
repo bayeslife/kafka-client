@@ -1,0 +1,29 @@
+{
+  "name": "kafka",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "watch": {
+   "test-debug": {
+     "patterns": [
+       "*.js",
+       "test/*.js"
+     ],
+     "extensions": "js"
+   }
+ },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha",
+    "test-debug": "DEBUG=kafka-client ./node_modules/mocha/bin/mocha"
+  },
+
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "avsc": "^5.0.7",
+    "kafka-node": "^2.2.3"
+  },
+  "devDependencies": {
+    "mocha": "^4.0.1"
+  }
+}
