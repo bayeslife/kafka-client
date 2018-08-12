@@ -1,22 +1,13 @@
 {
-  "name": "kafka",
+  "name": "kafka-client",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "watch": {
-   "test-debug": {
-     "patterns": [
-       "*.js",
-       "test/*.js"
-     ],
-     "extensions": "js"
-   }
- },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha",
-    "test-debug": "DEBUG=kafka-client ./node_modules/mocha/bin/mocha"
+    "start": "npm run test",
+    "test": "./node_modules/.bin/nodemon -w index.js -w src -w test --exec './node_modules/mocha/bin/mocha --timeout 10000'",
+    "test-debug": "./node_modules/.bin/nodemon -w index.js -w src -w test --exec 'DEBUG=kafka-client ./node_modules/mocha/bin/mocha --timeout 10000'"
   },
-
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -24,6 +15,7 @@
     "kafka-node": "^2.2.3"
   },
   "devDependencies": {
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "nodemon": "^1.18.3"
   }
 }

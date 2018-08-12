@@ -36,5 +36,9 @@ await client.produce(key,value,topic);
 var consumeMessage = await client.singleMessageConsumer(group,topic);
 
 //Then wait for a message
-var result = await consumeMessage();	
+var result = await consumeMessage();
 ```
+
+## Useful Reference
+
+[Getting Started with Kafka Client](https://www.confluent.io/blog/tutorial-getting-started-with-the-new-apache-kafka-0-9-consumer-client/)
