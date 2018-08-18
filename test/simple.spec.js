@@ -1,4 +1,4 @@
-var kclient = require("../index.js")
+var kclient = require("../src/kclient.js")
 var client = kclient('192.168.56.10:2181')
 var assert = require('assert')
 
@@ -14,16 +14,18 @@ describe('Given a zookeeper and kafka server running',()=>{
 	after(async ()=>{
 		//await client.disconnect();
 	})
-	describe.only('When topics are requested',()=>{
-		before(async ()=> {
-			result = await client.getTopics();
-		})
-		it('Then topics are received',function(){
-			debug(result)
-			assert.ok(result.length >0)
-		})
-	})
-
+	// describe('When topics are requested',()=>{
+	// 	before(async ()=> {
+	// 		var topic = 'testtopic';
+	// 		await client.createTopic(topic);
+	// 		result = await client.getTopics();
+	// 	})
+	// 	it('Then topics are received',function(){
+	// 		debug(result)
+	// 		assert.ok(result.length >0)
+	// 	})
+	// })
+	//
 	describe('When a topic is created',()=>{
 		var topic = 'testtopic'+uuid();
 		before(async ()=> {
@@ -80,10 +82,10 @@ describe('Given a zookeeper and kafka server running',()=>{
 				})
 			})
 		})
-	
-	
-	
-	
+
+
+
+
 	})
 
 	describe.skip('When a keyless message is produced',()=>{
@@ -114,10 +116,10 @@ describe('Given a zookeeper and kafka server running',()=>{
 				})
 			})
 		})
-	
-	
-	
-	
+
+
+
+
 	})
 
 })

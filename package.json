@@ -5,14 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run test",
-    "test": "./node_modules/.bin/nodemon -w index.js -w src -w test --exec './node_modules/mocha/bin/mocha --timeout 10000'",
-    "test-debug": "./node_modules/.bin/nodemon -w index.js -w src -w test --exec 'DEBUG=kafka-client ./node_modules/mocha/bin/mocha --timeout 10000'"
+    "test": "./node_modules/mocha/bin/mocha --timeout 10000",
+    "test:debug": "DEBUG=kafka-client ./node_modules/mocha/bin/mocha --timeout 10000",
+    "test:watch": "./node_modules/.bin/nodemon -w index.js -w src -w test --exec 'npm run test'"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "avsc": "^5.0.7",
-    "kafka-node": "^2.2.3"
+    "kafka-node": "^2.6.1"
   },
   "devDependencies": {
     "mocha": "^4.0.1",

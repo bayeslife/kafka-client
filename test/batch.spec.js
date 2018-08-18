@@ -1,4 +1,4 @@
-var kclient = require("../index.js")
+var kclient = require("../src/kclient.js")
 var client = kclient('192.168.56.10:2181')
 var assert = require('assert')
 
@@ -6,7 +6,7 @@ var debug = require('debug')('kafka-client');
 
 var uuid = require('uuid/v1');
 
-var topic = 'producertest';
+var topic = 'testinstances';
 var key = 'key';
 var value ="value" // value is a string
 
