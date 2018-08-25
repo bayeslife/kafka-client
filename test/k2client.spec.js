@@ -71,7 +71,7 @@ describe('Given kafka server running',()=>{
 		})
 	})
 	describe('When multiple messages are produced',()=>{
-		var topic = 'testinstances';
+		var topic = 'test.compact';
 		var key = 'key';
 		var value ="value" // value is a string
 		var group = "user@example.com"// groups can be users who are accessing the data
@@ -101,7 +101,7 @@ describe('Given kafka server running',()=>{
 				assert.ok(consumeMessage.length==batchsize)
 				debug(consumeMessage)
 			})
-		})
+		}),
 	})
 
 })

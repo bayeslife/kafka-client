@@ -99,7 +99,7 @@ consumer1 read msg Topic="atopic" Partition=0 Offset=0 highWaterOffset=10 Key= v
 consumer1 read msg Topic="atopic" Partition=0 Offset=0 highWaterOffset=10 Key= value=
 ```
 There is a high water offset which represents the latest value of 10
-However the offset value the consumer sees is only 7.
+However the offset value the consumer sees is only up to 7.
 Somehow the compaction prevents the consumer from seeing the latest messages.
 
 Its not clear how to avoid this constraint and allow the connsumer to see the latest messages.
