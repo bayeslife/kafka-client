@@ -1,4 +1,4 @@
-var { kafkaclient, config } = require('../index.js')
+var { kafkaclient, config } = require('../../index.js')
 var assert = require('assert')
 
 var debug = require('debug')('kafka-client')

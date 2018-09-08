@@ -1,6 +1,4 @@
-var config = require('../src/config.js')
-
-var zookeeperclient = require('../src/zookeeperclient.js')
+var { zookeeperclient, config } = require('../../index.js')
 var consumerclient = zookeeperclient(config.zookeeperService)
 var producerclient = zookeeperclient(config.zookeeperService)
 var assert = require('assert')

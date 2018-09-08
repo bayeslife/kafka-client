@@ -1,7 +1,6 @@
-var config = require('../src/config.js')
-var kclient = require('../src/zookeeperclient.js')
-var consumerclient = kclient(config.zookeeperService)
-var producerclient = kclient(config.zookeeperService)
+var { zookeeperclient, config } = require('../../index.js')
+var consumerclient = zookeeperclient(config.zookeeperService)
+var producerclient = zookeeperclient(config.zookeeperService)
 var assert = require('assert')
 
 var debug = require('debug')('kafka-consumerclient')

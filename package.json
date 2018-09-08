@@ -6,9 +6,10 @@
   "scripts": {
     "start": "npm run test",
     "lint": "eslint src tests",
-    "test": "./node_modules/mocha/bin/mocha --exit --timeout 10000 tests",
-    "test:debug": "DEBUG=kafka-client ./node_modules/mocha/bin/mocha --exit --timeout 10000 tests",
-    "test:watch": "./node_modules/.bin/nodemon -w index.js -w src -w test --exec 'npm run test'",
+    "integrationtest": "./node_modules/mocha/bin/mocha --exit --timeout 10000 tests/integration",
+    "test": "./node_modules/mocha/bin/mocha ---timeout 10000 tests/unit",
+    "test:debug": "DEBUG=kafka-client ./node_modules/mocha/bin/mocha  --timeout 10000 tests/unit",
+    "test:watch": "./node_modules/.bin/nodemon -w index.js -w src -w test --exec 'npm run test/unit'",
     "build": "echo 'Already built'"
   },
   "author": "",
