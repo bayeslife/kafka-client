@@ -1,8 +1,10 @@
-var kclient = require("../src/kclient.js")
-var client = kclient('192.168.56.10:2181')
+var config = require("../src/config.js")
+var kclient = require("../src/zookeeperclient.js")
+var consumerclient = kclient(config.zookeeperService)
+var producerclient = kclient(config.zookeeperService)
 var assert = require('assert')
 
-var debug = require('debug')('kafka-client');
+var debug = require('debug')('kafka-consumerclient');
 
 var uuid = require('uuid/v1');
 
@@ -16,24 +18,25 @@ var group = "user@example.com"// groups can be users who are accessing the data
 describe('Given a zookeeper and kafka server running',()=>{
 	var result;
 	before(async ()=>{
-		await client.connect();
+		await consumerclient.connect();
+		await producerclient.connect();
 	})
 	after(async ()=>{
-		await client.disconnect();
+		await consumerclient.disconnect();
+		await producerclient.disconnect();
 	})
 
 	describe('When multiple messages are produced',()=>{
-		
 		var offsets
 		var consumeMessage;
 		var latestOffset
 		var batchsize=5
 		before(async ()=> {
-			await client.createTopic(topic);
+			await consumerclient.createTopic(topic);
 			for(i=0;i<batchsize;i++){
-				produced = await client.produceTopicKeyValue(key,value+i,topic);
+				produced = await producerclient.produceTopicKeyValue(key,value+i,topic);
 			}
-			offsets = await client.getOffset(topic);
+			offsets = await consumerclient.getOffset(topic);
 			latestOffset = offsets[topic]['0'][0];
 			initialOffset = offsets[topic]['0'][1];
 			debug("Latest Offset",latestOffset)
@@ -42,7 +45,7 @@ describe('Given a zookeeper and kafka server running',()=>{
 		describe('When a batch of messages is read',()=>{
 			var result
 			before(async()=>{
-				consumeMessage = await client.batchConsume(group,topic,batchsize);
+				consumeMessage = await consumerclient.batchConsume(group,topic,batchsize);
 			})
 			it('Then a batch is received',async function(){
 				assert.ok(consumeMessage.length==batchsize)

@@ -1,3 +1,6 @@
+//This client implementation connects directly to the Kafka nodes directly rather than connecting to Zookeeper
+//The configuration only requires connectivity to Kafak and not zookeeper
+
 var kafka = require('kafka-node');
 var ConsumerGroup = kafka.ConsumerGroup;
 var HighLevelProducer = kafka.HighLevelProducer;
@@ -100,7 +103,95 @@ const K2Client = function(kafkanodes) {
         })
       })
     },
-    selectAll2: async function(groupid,topic){
+    createSubscriber: async function(groupid,topic,message_handler,fromOffset='latest'){
+    var client = new kafka.KafkaClient({kafkaHost: kfnodes,autoConnect: true})
+      var topicOffsets = await this.getOffset(topic);
+      var latestOffset = topicOffsets[topic]['0'][0];
+      var targetOffset = latestOffset-1;
+      var options = {
+        autoCommit: true,
+        fetchMaxWaitMs: 1000,
+        fetchMaxBytes: 10000,
+        fromOffset: true
+      };
+      var consumer = new Consumer(client,[{
+        topic: topic,
+        partition: 0,
+        offset: targetOffset
+      }],options);
+
+      consumer.on('error', onError);
+      consumer.on('message', onMessage);
+      consumer.on('done', onDone);
+      function onError (error) {
+        console.error(error);
+        console.error(error.stack);
+      }
+      function onDone (message) {
+        debug("Done",message)
+        //consumer.close(false,function(){});
+      }
+      function onMessage (message) {
+        if(message.key && message.value.length>0){
+          debug('%s read msg Topic="%s" Partition=%s Offset=%d highWaterOffset=%d Key=%s value=%s', this.client.clientId, message.topic, message.partition, message.offset, message.highWaterOffset, message.key, message.value);
+          var message = JSON.parse(message.value)
+          message_handler(message)
+        }
+      }
+      return {
+        close: function() {
+          debug("Closing Subscriber")
+          consumer.close(false,function(){});
+        }
+      }
+    },
+    createSubscriberGroup: async function(group,topic,message_handler,fromOffset='latest'){
+      return await new Promise((respond,reject)=> {
+        var options = {
+          autoCommit: true,
+          id: 'consumer1',
+          kafkaHost: kfnodes,
+          //batch: undefined, // put client batch settings if you need them (see Client)
+          groupId: group,
+          sessionTimeout: 15000,
+          protocol: ['roundrobin'],
+          fromOffset: fromOffset
+          //outOfRangeOffset: '
+        };
+        debug(`Creating ConsumerGroup for group ${group} and topic ${topic} from offset ${fromOffset}`)  
+        var consumerGroup = new ConsumerGroup(options, topic);
+        consumerGroup.on('error', onError);
+        consumerGroup.on('message', onMessage);
+        //consumerGroup.on('done', onDone);
+        function onError (error) {
+          console.error(error);
+          console.error(error.stack);
+        }
+        consumerGroup.connect()
+        consumerGroup.once('connect',()=>{
+          debug('Connected')
+          respond({
+            close: function() {
+              debug("Closing Subscriber")
+              consumerGroup.close(false,function(){
+                debug('ConsumerGroup closed')
+              });
+            }
+          });
+        }) 
+        // function onDone (message) {
+        //   debug("Done",message)
+        // }
+        function onMessage (message) {
+          if(message.key && message.value.length>0){
+            debug('%s read msg Topic="%s" Partition=%s Offset=%d highWaterOffset=%d Key=%s value=%s', this.client.clientId, message.topic, message.partition, message.offset, message.highWaterOffset, message.key, message.value);
+            var message = JSON.parse(message.value)
+            message_handler(message)
+          }
+        } 
+      })
+    },
+    groupSelectAll: async function(groupid,topic){
       var options = {
         id: 'consumer1',
         kafkaHost: kfnodes,
@@ -118,7 +209,7 @@ const K2Client = function(kafkanodes) {
         consumerGroup.on('error', onError);
         consumerGroup.on('message', onMessage);
         consumerGroup.on('done', function(message) {
-          consumerGroup.close(false,function(){
+          consumerGroup.close(true,function(){
             resp(content)
           });
         })
@@ -127,15 +218,13 @@ const K2Client = function(kafkanodes) {
           console.error(error.stack);
         }
         function onMessage (message) {
-          //console.log(message)
-          console.log('%s read msg Topic="%s" Partition=%s Offset=%d highWaterOffset=%d Key=%s value=%s', this.client.clientId, message.topic, message.partition, message.offset, message.highWaterOffset, message.key, message.value);
           if(message.key && message.value.length>0){
             content.push(JSON.parse(message.value))
           }
         }
       })
     },
-    selectAll: async function(groupid,topic){
+    selectAll: async function(topic){
       var client = new kafka.KafkaClient({kafkaHost: kfnodes,autoConnect: true})
       debug("Selecting all from topic:",topic)
       return await new Promise(function(resp,rejt){

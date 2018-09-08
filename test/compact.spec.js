@@ -1,4 +1,4 @@
-var k2client = require("../src/k2client.js")
+var { kafkaclient, config } = require("../index.js")
 var assert = require('assert')
 
 var debug = require('debug')('kafka-client');
@@ -7,28 +7,28 @@ var topic = 'testistic.projects';
 var group = "user_example.com"// groups can be users who are accessing the data
 
 describe('Given kafka server running',()=>{
-	let client =null;
+	let consumerclient =null;
 	var result
 	before(async ()=>{
-		client = k2client('192.168.56.10:9092');
+		consumerclient = kafkaclient(config.kafkaService);
 	})
 	it('Then client is created',async function(){
-		assert.ok(client)
+		assert.ok(consumerclient)
 	})
 	describe('When a offset is requested',()=>{
 		before(async ()=> {
 		})
 		it('Then offset for a new topic is 0',async function(){
-			result = await client.getOffset(topic);
+			result = await consumerclient.getOffset(topic);
 			debug(result)
 			assert.ok(result)
 		})
 	})
-	describe.only('When selectAll messages',()=>{
+	describe('When selectAll messages',()=>{
 		var result
 
 		before(async()=>{
-			consumeMessage = await client.selectAll2(group,topic);
+			consumeMessage = await consumerclient.groupSelectAll(group,topic);
 		})
 		it('Then all messages are read',async function(){
 			debug(consumeMessage.length)

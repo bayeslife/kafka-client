@@ -1,3 +1,11 @@
-var k2client = require('./src/k2client.js')
+var kafkaclient = require('./src/kafkaclient.js')
 
-module.exports = k2client
+var zookeeperclient = require('./src/zookeeperclient.js')
+
+var config = require('./src/config.js')
+
+module.exports = {
+    kafkaclient,
+    zookeeperclient,
+    config
+}

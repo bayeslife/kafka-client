@@ -1,3 +1,6 @@
+//This client implementation connects Zookeeper
+//This is understood to be an older style interface
+
 var kafka = require('kafka-node');
 var ConsumerGroup = kafka.ConsumerGroup;
 var HighLevelProducer = kafka.HighLevelProducer;
@@ -28,7 +31,9 @@ const KClient = function(zookeeper) {
       })
     },
     disconnect: function(){
-      debug('disconnected')
+      client.close(function(){
+        debug('disconnected')
+      })
     },
     createTopic: async function(topic){
       return await new Promise(function(res,ref){
@@ -68,10 +73,10 @@ const KClient = function(zookeeper) {
           });
     },
 
-    produceTopicValue: function(value,topic,partition=0){
+    produceTopicValue: function(value,topic){
       var payload = [{
+        key: null,
         topic: topic,
-        partition: partition,
         messages: [value],
         attributes: 0 /* Use GZip compression for the payload */
       }];
@@ -132,7 +137,7 @@ const KClient = function(zookeeper) {
 
           var consumeFn = async function(groupid,topic){
             return await new Promise(function(ares,arej){
-              consumerGroup.on('message', function(message) {
+              consumerGroup.once('message', function(message) {
                 debug('consumed message')
                 debug(message);
                 consumerGroup.close(true,function(){

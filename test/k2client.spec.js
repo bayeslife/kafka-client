@@ -1,15 +1,16 @@
-var k2client = require("../src/k2client.js")
+var { kafkaclient,config} = require("../index.js")
 var assert = require('assert')
 
 var debug = require('debug')('kafka-client');
 
 var uuid = require('uuid/v1');
 
+
 describe('Given kafka server running',()=>{
 	let client =null;
 	var result
 	before(async ()=>{
-		client = k2client('192.168.56.10:9092');
+		client = kafkaclient(config.kafkaService);
 	})
 	after(function(){
 	})
@@ -101,7 +102,6 @@ describe('Given kafka server running',()=>{
 				assert.ok(consumeMessage.length==batchsize)
 				debug(consumeMessage)
 			})
-		}),
+		})
 	})
-
 })

@@ -1,5 +1,8 @@
-var kclient = require("../src/kclient.js")
-var client = kclient('192.168.56.10:2181')
+var config = require("../src/config.js")
+
+var zookeeperclient = require("../src/zookeeperclient.js")
+var consumerclient = zookeeperclient(config.zookeeperService)
+var producerclient = zookeeperclient(config.zookeeperService)
 var assert = require('assert')
 
 var debug = require('debug')('kafka-client');
@@ -9,30 +12,20 @@ var uuid = require('uuid/v1');
 describe('Given a zookeeper and kafka server running',()=>{
 	var result;
 	before(async ()=>{
-		await client.connect();
+		await consumerclient.connect();
+		await producerclient.connect();
 	})
 	after(async ()=>{
-		//await client.disconnect();
+		await consumerclient.disconnect();
+		await producerclient.disconnect();
 	})
-	// describe('When topics are requested',()=>{
-	// 	before(async ()=> {
-	// 		var topic = 'testtopic';
-	// 		await client.createTopic(topic);
-	// 		result = await client.getTopics();
-	// 	})
-	// 	it('Then topics are received',function(){
-	// 		debug(result)
-	// 		assert.ok(result.length >0)
-	// 	})
-	// })
-	//
 	describe('When a topic is created',()=>{
 		var topic = 'testtopic'+uuid();
 		before(async ()=> {
-			await client.createTopic(topic);
+			await consumerclient.createTopic(topic);
 		})
 		it('Then topics contain the topic created',async function(){
-			result = await client.getTopics();
+			result = await consumerclient.getTopics();
 			debug(result)
 			assert.ok(result.indexOf(topic)>-1)
 		})
@@ -41,10 +34,10 @@ describe('Given a zookeeper and kafka server running',()=>{
 	describe('When a offset is requested',()=>{
 		var topic = 'testtopic'+uuid();
 		before(async ()=> {
-			await client.createTopic(topic);
+			await consumerclient.createTopic(topic);
 		})
 		it('Then offset for a new topic is 0',async function(){
-			result = await client.getOffset(topic);
+			result = await consumerclient.getOffset(topic);
 			debug(result)
 			assert.ok(result)
 		})
@@ -59,13 +52,13 @@ describe('Given a zookeeper and kafka server running',()=>{
 
 		var consumeMessage;
 		before(async ()=> {
-			await client.createTopic(topic);
+			await consumerclient.createTopic(topic);
 		})
 		describe('When a single message is produced and read',()=>{
 			var result
 			before(async()=>{
-				consumeMessage = await client.singleMessageConsumer(group,topic);
-				await client.produceTopicKeyValue(key,value,topic);
+				consumeMessage = await consumerclient.singleMessageConsumer(group,topic);
+				await producerclient.produceTopicKeyValue(key,value,topic);
 				result = await consumeMessage();
 			})
 			it('Then a message is received',async function(){
@@ -75,7 +68,7 @@ describe('Given a zookeeper and kafka server running',()=>{
 			describe('When offsets are requested',()=>{
 				var offsets
 				before(async ()=>{
-					offsets = await client.getOffset(topic);
+					offsets = await consumerclient.getOffset(topic);
 				})
 				it('Then offset is 1',async function(){
 					debug(offsets)
@@ -88,28 +81,27 @@ describe('Given a zookeeper and kafka server running',()=>{
 
 	})
 
-	describe.skip('When a keyless message is produced',()=>{
+	describe('When a keyless message is produced',()=>{
 		var topic = 'producertestkeyless';
 		var value= 'value1';
 
-		var group = "user@example.com"
+		var group = uuid();//a new group means we always read new messages which arrive
 
 		var consumeMessage;
 		before(async ()=> {
-			await client.createTopic(topic);
+			await consumerclient.createTopic(topic);
 		})
 		describe('When a single message is produced and read',()=>{
 			var result
 			before(async()=>{
 				for(var i=0;i<5;i++){
-					console.log(i%3)
-					await client.produceTopicValue(value,topic,i%3);
+					await consumerclient.produceTopicValue(null,value,topic);
 				}
 			})
 			describe('When offsets are requested',()=>{
 				var offsets
 				before(async ()=>{
-					offsets = await client.getOffset(topic);
+					offsets = await consumerclient.getOffset(topic);
 				})
 				it('Then offset is 1',async function(){
 					debug(offsets)
