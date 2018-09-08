@@ -9,6 +9,9 @@ var Consumer = kafka.Consumer
 
 var debug = require('debug')('kafka-client')
 
+var pkg = require('../package.json')
+debug(pkg.version)
+
 const K2Client = function (kafkanodes) {
   var kfnodes = kafkanodes
 
@@ -141,8 +144,10 @@ const K2Client = function (kafkanodes) {
         }
       }
     },
-    createSubscriberGroup: function (group, topic, messageHandler, fromOffset = 'latest') {
-      return new Promise((resolve, reject) => {
+    createSubscriberGroup: async function (group, topic, messageHandler, fromOffset = 'latest') {
+      debug('CreatingSubscribeGroup')
+      var consumerGroup
+      var subscriber = await new Promise((resolve, reject) => {
         var options = {
           autoCommit: true,
           id: 'consumer1',
@@ -155,10 +160,9 @@ const K2Client = function (kafkanodes) {
           // outOfRangeOffset: '
         }
         debug(`Creating ConsumerGroup for group ${group} and topic ${topic} from offset ${fromOffset}`)
-        var consumerGroup = new ConsumerGroup(options, topic)
+        consumerGroup = new ConsumerGroup(options, topic)
         consumerGroup.on('error', onError)
         consumerGroup.on('message', onMessage)
-        // consumerGroup.on('done', onDone);
         function onError (error) {
           console.error(error)
           console.error(error.stack)
@@ -166,18 +170,8 @@ const K2Client = function (kafkanodes) {
         consumerGroup.connect()
         consumerGroup.once('connect', () => {
           debug('Connected')
-          resolve({
-            close: function () {
-              debug('Closing Subscriber')
-              consumerGroup.close(false, function () {
-                debug('ConsumerGroup closed')
-              })
-            }
-          })
+          resolve()
         })
-        // function onDone (message) {
-        //   debug("Done",message)
-        // }
         function onMessage (message) {
           if (message.key && message.value.length > 0) {
             debug('%s read msg Topic="%s" Partition=%s Offset=%d highWaterOffset=%d Key=%s value=%s', this.client.clientId, message.topic, message.partition, message.offset, message.highWaterOffset, message.key, message.value)
@@ -185,6 +179,15 @@ const K2Client = function (kafkanodes) {
           }
         }
       })
+      debug('CreatedSubscribeGroup')
+      return {
+        close: function () {
+          debug('Closing Subscriber')
+          consumerGroup.close(false, function () {
+            debug('ConsumerGroup closed')
+          })
+        }
+      }
     },
     groupSelectAll: async function (groupid, topic) {
       var options = {
