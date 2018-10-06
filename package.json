@@ -1,12 +1,12 @@
 {
   "name": "kafka-client",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "npm run test",
     "lint": "eslint src tests",
-    "integrationtest": "./node_modules/mocha/bin/mocha --exit --timeout 10000 tests/integration",
+    "integrationtest": "DEBUG=kafka-client,kafka-node ./node_modules/mocha/bin/mocha --exit --timeout 10000 tests/integration",
     "test": "./node_modules/mocha/bin/mocha ---timeout 10000 tests/unit",
     "test:debug": "DEBUG=kafka-client ./node_modules/mocha/bin/mocha  --timeout 10000 tests/unit",
     "test:watch": "./node_modules/.bin/nodemon -w index.js -w src -w test --exec 'npm run test/unit'",
@@ -15,19 +15,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "avsc": "^5.0.7",
+    "avsc": "^5.4.4",
     "kafka-node": "^2.6.1",
     "npm": "^6.4.1"
   },
   "devDependencies": {
-    "mocha": "^4.0.1",
-    "nodemon": "^1.18.3",
-    "eslint": "^5.0.1",
+    "eslint": "^5.6.1",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-config-standard": "^12.0.0-alpha.0",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0"
+    "eslint-plugin-standard": "^3.1.0",
+    "mocha": "^4.1.0",
+    "nodemon": "^1.18.4"
   }
 }

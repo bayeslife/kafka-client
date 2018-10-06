@@ -55,12 +55,17 @@ const K2Client = function (kafkanodes) {
       return this.producePayload(payload)
     },
     createTopic: function (topic) {
+      // console.log(kfnodes)
       var client = new kafka.KafkaClient({ kafkaHost: kfnodes, autoConnect: true })
       return new Promise(function (resolve, reject) {
         debug('Creating topics:', topic)
         client.createTopics(topic, true, function (error, results) {
         debug('CreatedTopic:' + results)
-          if (!error) { resolve(results) } else { reject(error) }
+          if (!error) {
+            resolve(results)
+          } else {
+            reject(error)
+          }
           client.close()
         })
       })
@@ -111,7 +116,7 @@ const K2Client = function (kafkanodes) {
       var options = {
         autoCommit: true,
         fetchMaxWaitMs: 1000,
-        fetchMaxBytes: 10000,
+        fetchMaxBytes: 1000000,
         fromOffset: true
       }
       var consumer = new Consumer(client, [{
@@ -263,7 +268,7 @@ const K2Client = function (kafkanodes) {
         var options = {
           autoCommit: false,
           fetchMaxWaitMs: 1000,
-          fetchMaxBytes: 10000,
+          fetchMaxBytes: 1000000,
           fromOffset: true
         }
         var consumer = new Consumer(client, [{
