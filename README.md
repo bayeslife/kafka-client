@@ -48,6 +48,6 @@ var result = await consumeMessage();
 
 [Getting Started with Kafka Client](https://www.confluent.io/blog/tutorial-getting-started-with-the-new-apache-kafka-0-9-consumer-client/)
 
-
 ## Release Notes
 [Release Notes](./RELEASE.md)
+
