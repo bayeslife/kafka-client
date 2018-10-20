@@ -3,6 +3,7 @@
 ### 2.1
 
 kafkaclient.createSubscriberGroup now processes messages serially
+resolved issues requesting messages from non-existing topics
 
 ### 2.0.2
 

@@ -70,6 +70,16 @@ describe('Given kafka server running', () => {
 			assert.ok(result)
 		})
 	})
+	describe('When request messages from a non-existent topic', () => {
+		var result
+		var group = 'user@example.com'
+		before(async () => {
+			result = await client.batchConsume(group, `testtopic.${uuid()}`, 1)
+		})
+		it.only('Then null is returned', async function () {
+			assert.equal(null, result)
+		})
+	})
 	describe('When multiple messages are produced', () => {
 		var topic = 'test.compact'
 		var key = 'key'
