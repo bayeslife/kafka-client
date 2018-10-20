@@ -177,10 +177,10 @@ const K2Client = function (kafkanodes) {
           debug('Connected')
           resolve()
         })
-        function onMessage (message) {
+        async function onMessage (message) {
           if (message.key && message.value.length > 0) {
             debug('%s read msg Topic="%s" Partition=%s Offset=%d highWaterOffset=%d Key=%s value=%s', this.client.clientId, message.topic, message.partition, message.offset, message.highWaterOffset, message.key, message.value)
-            messageHandler(JSON.parse(message.value))
+            await messageHandler(JSON.parse(message.value))
           }
         }
       })
