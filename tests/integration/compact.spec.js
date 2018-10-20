@@ -3,7 +3,7 @@ var assert = require('assert')
 
 var debug = require('debug')('kafka-client')
 
-var topic = 'testistic.projects'
+var topic = 'integrationtest.compact'
 var group = 'user_example.com'// groups can be users who are accessing the data
 
 describe('Given kafka server running', () => {
@@ -28,6 +28,7 @@ describe('Given kafka server running', () => {
 		var result
 		var consumeMessage
 		before(async () => {
+			await consumerclient.produceTopicKeyValue('key', 'value', topic)
 			consumeMessage = await consumerclient.groupSelectAll(group, topic)
 		})
 		it('Then all messages are read', async function () {

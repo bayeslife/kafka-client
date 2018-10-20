@@ -44,13 +44,49 @@ describe('Given kafka server running', function () {
 		it('Then subscriber is created', async function () {
 			assert.ok(subscriber)
 		})
-		describe.skip('And when a message is produced', () => {
+		describe('And when a message is produced', () => {
 			before(async () => {
 				await producerclient.produceTopicKeyValue('key', 'value', topic)
 			})
 
 			it('Then a message was handled', function () {
 				assert.ok(themessage)
+			})
+		})
+	})
+	describe('When a consumer group is created', () => {
+		var total =0
+		var count=0
+		var max=0
+		before(async () => {
+			var messagehandler
+			var p = new Promise((res,rej)=>{
+				messagehandler = async function (message) {
+					count++
+					if(count>max){
+						max = count
+					}
+					var p = new Promise((res2,rej2)=>{
+						setTimeout(()=> {
+							count--
+							total++
+							if(total>=2){
+								res()
+							}
+							res2()
+						},100)
+					})
+					await p
+				}
+			})
+			await consumerclient.createSubscriberGroup(group, topic, messagehandler, 'latest')
+			await producerclient.produceTopicKeyValue('key', 'value', topic)
+			await producerclient.produceTopicKeyValue('key', 'value', topic)
+			await p
+		})
+		describe('And when 2 messages are produced', () => {
+			it('Then they are handle serially', function () {
+				assert.equal(max,1)	
 			})
 		})
 	})

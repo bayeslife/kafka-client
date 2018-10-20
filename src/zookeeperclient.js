@@ -14,7 +14,7 @@ const KClient = function (zookeeper) {
   var zk = zookeeper
   var client = null
   return {
-    connect: async function (zookeeper) {
+    connect: async function () {
         client = new Client(zk)
         await new Promise(function (resolve, reject) {
           client.once('connect', function () {

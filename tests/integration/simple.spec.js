@@ -10,8 +10,8 @@ var uuid = require('uuid/v1')
 describe('Given a zookeeper and kafka server running', () => {
 	var result
 	before(async () => {
-		await consumerclient.connect()
-		await producerclient.connect()
+		await consumerclient.connect(config.zookeeperService)
+		await producerclient.connect(config.zookeeperService)
 	})
 	after(async () => {
 		await consumerclient.disconnect()

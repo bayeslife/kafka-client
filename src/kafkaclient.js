@@ -109,7 +109,7 @@ const K2Client = function (kafkanodes) {
       })
     },
     createSubscriber: async function (groupid, topic, messageHandler, fromOffset = 'latest') {
-    var client = new kafka.KafkaClient({ kafkaHost: kfnodes, autoConnect: true })
+      var client = new kafka.KafkaClient({ kafkaHost: kfnodes, autoConnect: true })
       var topicOffsets = await this.getOffset(topic)
       var latestOffset = topicOffsets[topic]['0'][0]
       var targetOffset = latestOffset - 1
@@ -152,6 +152,7 @@ const K2Client = function (kafkanodes) {
     createSubscriberGroup: async function (group, topic, messageHandler, fromOffset = 'latest') {
       debug('CreatingSubscribeGroup')
       var consumerGroup
+      var messagequeue=[]
       var subscriber = await new Promise((resolve, reject) => {
         var options = {
           autoCommit: true,
@@ -177,12 +178,23 @@ const K2Client = function (kafkanodes) {
           debug('Connected')
           resolve()
         })
-        async function onMessage (message) {
-          if (message.key && message.value.length > 0) {
-            debug('%s read msg Topic="%s" Partition=%s Offset=%d highWaterOffset=%d Key=%s value=%s', this.client.clientId, message.topic, message.partition, message.offset, message.highWaterOffset, message.key, message.value)
-            await messageHandler(JSON.parse(message.value))
+        function onMessage (message) {
+          messagequeue.push(message)
+          if(messagequeue.length==1){
+            dequeue()
           }
         }
+        async function dequeue() {
+          if(messagequeue.length>0){
+            var message = messagequeue[0]
+            if (message.key && message.value.length > 0) {
+              debug(`Message on Topic=${message.topic} Partition=${message.partition} Offset=${message.offset} highWaterOffset=${message.highWaterOffse} Key=${message.key} value=${message.value}`)      
+              await messageHandler(JSON.parse(message.value))
+            }
+            messagequeue.shift()
+            dequeue();
+          }
+        } 
       })
       debug('CreatedSubscribeGroup')
       return {
