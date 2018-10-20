@@ -100,7 +100,11 @@ const K2Client = function (kafkanodes) {
           }
         ], function (err, data) {
           if (err) {
-            reject(err)
+            if(err[0]==='LeaderNotAvailable') {
+              resolve(null)
+            } else {
+              reject(err)
+            }
           } else if (data) {
             resolve(data)
           }
@@ -271,12 +275,9 @@ const K2Client = function (kafkanodes) {
     },
     batchConsume: async function (groupid, topic, batchsize) {
       var client = new kafka.KafkaClient({ kafkaHost: kfnodes, autoConnect: true })
-      var topicOffsets
-      try {
-        topicOffsets = await this.getOffset(topic)
-      } catch (error) {
-        if (error[0] === 'LeaderNotAvailable') { return null } else { throw error }
-      }
+      var topicOffsets = await this.getOffset(topic)
+      if(!topicOffsets)
+        return null
       var latestOffset = topicOffsets[topic]['0'][0]
       var targetOffset = latestOffset - batchsize > 0 ? latestOffset - batchsize : 0
       debug('Consuming from:', targetOffset, ' to offset:', latestOffset)

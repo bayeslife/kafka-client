@@ -76,7 +76,7 @@ describe('Given kafka server running', () => {
 		before(async () => {
 			result = await client.batchConsume(group, `testtopic.${uuid()}`, 1)
 		})
-		it.only('Then null is returned', async function () {
+		it('Then null is returned', async function () {
 			assert.equal(null, result)
 		})
 	})

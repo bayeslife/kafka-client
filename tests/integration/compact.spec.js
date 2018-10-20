@@ -17,6 +17,7 @@ describe('Given kafka server running', () => {
 	})
 	describe('When a offset is requested', () => {
 		before(async () => {
+			await consumerclient.createTopic(topic)
 		})
 		it('Then offset for a new topic is 0', async function () {
 			result = await consumerclient.getOffset(topic)
