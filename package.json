@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run test",
-    "lint": "eslint src tests",
+    "lint": "eslint --fix src tests",
     "integrationtest": "DEBUG=kafka-client,kafka-node ./node_modules/mocha/bin/mocha --exit --timeout 10000 tests/integration",
     "test": "./node_modules/mocha/bin/mocha ---timeout 10000 tests/unit",
     "test:debug": "DEBUG=kafka-client ./node_modules/mocha/bin/mocha  --timeout 10000 tests/unit",

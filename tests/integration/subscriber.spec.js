@@ -55,26 +55,28 @@ describe('Given kafka server running', function () {
 		})
 	})
 	describe('When a consumer group is created', () => {
-		var total =0
-		var count=0
-		var max=0
+		var total = 0
+		var count = 0
+		var max = 0
 		before(async () => {
 			var messagehandler
-			var p = new Promise((res,rej)=>{
+			var p = new Promise((resolve, reject) => {
+				var outerResolve = resolve
 				messagehandler = async function (message) {
 					count++
-					if(count>max){
+					if (count > max) {
 						max = count
 					}
-					var p = new Promise((res2,rej2)=>{
-						setTimeout(()=> {
+					var p = new Promise((resolve, reject) => {
+						var innerResolve = resolve
+						setTimeout(() => {
 							count--
 							total++
-							if(total>=2){
-								res()
+							if (total >= 2) {
+								outerResolve()
 							}
-							res2()
-						},100)
+							innerResolve()
+						}, 100)
 					})
 					await p
 				}
@@ -86,7 +88,7 @@ describe('Given kafka server running', function () {
 		})
 		describe('And when 2 messages are produced', () => {
 			it('Then they are handle serially', function () {
-				assert.equal(max,1)	
+				assert.equal(max, 1)
 			})
 		})
 	})

@@ -152,7 +152,7 @@ const K2Client = function (kafkanodes) {
     createSubscriberGroup: async function (group, topic, messageHandler, fromOffset = 'latest') {
       debug('CreatingSubscribeGroup')
       var consumerGroup
-      var messagequeue=[]
+      var messagequeue = []
       var subscriber = await new Promise((resolve, reject) => {
         var options = {
           autoCommit: true,
@@ -180,21 +180,21 @@ const K2Client = function (kafkanodes) {
         })
         function onMessage (message) {
           messagequeue.push(message)
-          if(messagequeue.length==1){
+          if (messagequeue.length === 1) {
             dequeue()
           }
         }
-        async function dequeue() {
-          if(messagequeue.length>0){
+        async function dequeue () {
+          if (messagequeue.length > 0) {
             var message = messagequeue[0]
             if (message.key && message.value.length > 0) {
-              debug(`Message on Topic=${message.topic} Partition=${message.partition} Offset=${message.offset} highWaterOffset=${message.highWaterOffse} Key=${message.key} value=${message.value}`)      
+              debug(`Message on Topic=${message.topic} Partition=${message.partition} Offset=${message.offset} highWaterOffset=${message.highWaterOffse} Key=${message.key} value=${message.value}`)
               await messageHandler(JSON.parse(message.value))
             }
             messagequeue.shift()
-            dequeue();
+            dequeue()
           }
-        } 
+        }
       })
       debug('CreatedSubscribeGroup')
       return {
