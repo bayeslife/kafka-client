@@ -1,5 +1,9 @@
 ## Release Notes
 
+### 2.2
+
+kafkaclient batchConsume can now supports an offset and a batchsize
+
 ### 2.1
 
 kafkaclient.createSubscriberGroup now processes messages serially

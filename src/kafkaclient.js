@@ -273,12 +273,12 @@ const K2Client = function (kafkanodes) {
         })
       })
     },
-    batchConsume: async function (groupid, topic, batchsize) {
+    batchConsume: async function (groupid, topic, batchsize, offset = 0) {
       var client = new kafka.KafkaClient({ kafkaHost: kfnodes, autoConnect: true })
       var topicOffsets = await this.getOffset(topic)
       if(!topicOffsets)
         return null
-      var latestOffset = topicOffsets[topic]['0'][0]
+      var latestOffset = topicOffsets[topic]['0'][0] - offset
       var targetOffset = latestOffset - batchsize > 0 ? latestOffset - batchsize : 0
       debug('Consuming from:', targetOffset, ' to offset:', latestOffset)
       return new Promise(function (resolve, reject) {
@@ -297,7 +297,7 @@ const K2Client = function (kafkanodes) {
         consumer.on('done', function (message) {
           consumer.close(true, function () {
             client.close()
-            resolve(content)
+            resolve(content.slice(0,batchsize))
           })
         })
         consumer.on('message', function (message) {

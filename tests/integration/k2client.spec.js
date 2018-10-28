@@ -80,7 +80,7 @@ describe('Given kafka server running', () => {
 			assert.equal(null, result)
 		})
 	})
-	describe('When multiple messages are produced', () => {
+	describe.only('When multiple messages are produced', () => {
 		var topic = 'test.compact'
 		var key = 'key'
 		var value = 'value' // value is a string
@@ -105,8 +105,8 @@ describe('Given kafka server running', () => {
 		describe('When a batch of messages is read', () => {
 			var result
 			before(async () => {
-				consumeMessage = await client.batchConsume(group, topic, batchsize)
-				consumeMessage = await client.batchConsume(group, topic, batchsize)
+				consumeMessage = await client.batchConsume(group, topic, batchsize,5)
+				consumeMessage = await client.batchConsume(group, topic, batchsize,10)
 			})
 			it('Then a batch is received', async function () {
 				assert.ok(consumeMessage.length === batchsize)
