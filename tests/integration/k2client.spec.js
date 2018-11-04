@@ -104,8 +104,8 @@ describe('Given kafka server running', () => {
 		describe('When a batch of messages is read', () => {
 			var result
 			before(async () => {
-				consumeMessage = await client.batchConsume(group, topic, batchsize,5)
-				consumeMessage = await client.batchConsume(group, topic, batchsize,10)
+				consumeMessage = await client.batchConsume(group, topic, batchsize, 5)
+				consumeMessage = await client.batchConsume(group, topic, batchsize, 10)
 			})
 			it('Then a batch is received', async function () {
 				assert.ok(consumeMessage.length === batchsize)

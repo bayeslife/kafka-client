@@ -28,7 +28,7 @@ describe('Given kafka server running', () => {
 	describe('When multiple messages are produced to a compact topic', () => {
 		var topic = 'test.topic.compact'
 		var key = 'key'
-		var rand = Math.floor((Math.random() * 100) + 1);
+		var rand = Math.floor((Math.random() * 100) + 1)
 		var value = `value-${rand}-` // value is a string
 		var group = 'user.example.com'// groups can be users who are accessing the data
 		var offsets
@@ -36,12 +36,12 @@ describe('Given kafka server running', () => {
 		var initialOffset, latestOffset
 		var createBatchSize = 10
 		var produced
-		
+
 		before(async () => {
 			await consumerclient.createTopic(topic)
 			for (var i = 0; i < createBatchSize; i++) {
 				var k = key + (i % 3)
-				produced = await consumerclient.produceTopicKeyValue(k, value + i , topic)
+				produced = await consumerclient.produceTopicKeyValue(k, value + i, topic)
 			}
 			offsets = await consumerclient.getOffset(topic)
 			debug(offsets)

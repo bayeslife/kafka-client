@@ -100,7 +100,7 @@ const K2Client = function (kafkanodes) {
           }
         ], function (err, data) {
           if (err) {
-            if(err[0]==='LeaderNotAvailable') {
+            if (err[0] === 'LeaderNotAvailable') {
               resolve(null)
             } else {
               reject(err)
@@ -210,7 +210,7 @@ const K2Client = function (kafkanodes) {
         }
       }
     },
-    retrieveBatchKeyValue: function(content,topic,start,length){
+    retrieveBatchKeyValue: function (content, topic, start, length) {
       var client = new kafka.KafkaClient({ kafkaHost: kfnodes, autoConnect: true })
       debug('Consuming from:', start, ' for length:', length)
       return new Promise(function (resolve, reject) {
@@ -232,12 +232,12 @@ const K2Client = function (kafkanodes) {
           })
         })
         consumer.on('offsetOutOfRange', function (err) {
-          debug('Outset out of range')
+          debug(`Outset out of range ${err}`)
         })
         consumer.on('message', function (message) {
           if (message.key) {
-            debug(`consumed msg from topic[${message.topic}] Partition[${message.partition}] Offset[${message.offset}] HW=${message.highWaterOffse} Key=${message.key} Value=>${message.value}`);
-            content.data[message.key]= JSON.parse(message.value)
+            debug(`consumed msg from topic[${message.topic}] Partition[${message.partition}] Offset[${message.offset}] HW=${message.highWaterOffse} Key=${message.key} Value=>${message.value}`)
+            content.data[message.key] = JSON.parse(message.value)
             content.offset = message.offset
           }
         })
@@ -273,7 +273,7 @@ const K2Client = function (kafkanodes) {
         }
         function onMessage (message) {
           if (message.key && message.value.length > 0) {
-            debug(`consumed msg from topic[${message.topic}] Partition[${message.partition}] Offset[${message.offset}] HW=${message.highWaterOffset} Key=${message.key} Value=>${message.value}`);
+            debug(`consumed msg from topic[${message.topic}] Partition[${message.partition}] Offset[${message.offset}] HW=${message.highWaterOffset} Key=${message.key} Value=>${message.value}`)
             content.data[message.key] = JSON.parse(message.value)
             content.offset = message.offset
           }
@@ -283,9 +283,9 @@ const K2Client = function (kafkanodes) {
     groupSelectAll: async function (groupid, topic) {
       var topicOffsets = await this.getOffset(topic)
       var latestOffset = topicOffsets[topic]['0'][0]
-      var res = await this.retrieveAllKeyValue(groupid,topic)
-      while(res.offset < (latestOffset-1)){
-        await this.retrieveBatchKeyValue(res,topic,res.offset+1,latestOffset - (res.offset+1))
+      var res = await this.retrieveAllKeyValue(groupid, topic)
+      while (res.offset < (latestOffset - 1)) {
+        await this.retrieveBatchKeyValue(res, topic, res.offset + 1, latestOffset - (res.offset + 1))
       }
       return res
     },
@@ -311,7 +311,7 @@ const K2Client = function (kafkanodes) {
             resolve(content)
           })
         })
-        consumerGroup.on('message', function (message) {
+        consumer.on('message', function (message) {
           if (message.key) {
             debug('consumed message offset:', message.offset, '=>', message.value)
             content.push(JSON.parse(message.value))
@@ -319,21 +319,20 @@ const K2Client = function (kafkanodes) {
         })
       })
     },
-    calculateStartEnd: function(batchsize,offset,latestOffset,highwaterMark){
-      var start1 = latestOffset -batchsize - offset
-      if(start1<0)
-        start1=0
-      var end1 = start1 + batchsize > latestOffset ? latestOffset : start1+batchsize
-      var start2= -1
+    calculateStartEnd: function (batchsize, offset, latestOffset, highwaterMark) {
+      var start1 = latestOffset - batchsize - offset
+      if (start1 < 0) { start1 = 0 }
+      var end1 = start1 + batchsize > latestOffset ? latestOffset : start1 + batchsize
+      var start2 = -1
       var end2 = -1
-      if(start1 <highwaterMark && end1>highwaterMark){
+      if (start1 < highwaterMark && end1 > highwaterMark) {
         end2 = end1
-        end1=highwaterMark
-        start2=highwaterMark
+        end1 = highwaterMark
+        start2 = highwaterMark
       }
-      return { start1, length1: end1-start1, start2, length2: end2-start2 }
+      return { start1, length1: end1 - start1, start2, length2: end2 - start2 }
     },
-    retrieveBatch: function(topic,start,length){
+    retrieveBatch: function (topic, start, length) {
       var client = new kafka.KafkaClient({ kafkaHost: kfnodes, autoConnect: true })
       debug('Consuming from:', start, ' for length:', length)
       return new Promise(function (resolve, reject) {
@@ -352,37 +351,34 @@ const K2Client = function (kafkanodes) {
         consumer.on('done', function (message) {
           consumer.close(true, function () {
             client.close()
-            resolve(content.slice(0,length))
+            resolve(content.slice(0, length))
           })
         })
         consumer.on('offsetOutOfRange', function (err) {
-          debug('Outset out of range')
+          debug(`Outset out of range ${err}`)
         })
         consumer.on('message', function (message) {
           if (message.key) {
-            debug(`consumed msg from topic[${message.topic}] Partition[${message.partition}] Offset[${message.offset}] HW=${message.highWaterOffse} Key=${message.key} Value=>${message.value}`);
+            debug(`consumed msg from topic[${message.topic}] Partition[${message.partition}] Offset[${message.offset}] HW=${message.highWaterOffse} Key=${message.key} Value=>${message.value}`)
             content.push(JSON.parse(message.value))
           }
         })
       })
     },
     batchConsume: async function (groupid, topic, batchsize, offset = 0) {
-      
       var topicOffsets = await this.getOffset(topic)
-      if(!topicOffsets)
-        return null
+      if (!topicOffsets) { return null }
       var latestOffset = topicOffsets[topic]['0'][0]
       var highwaterMark = topicOffsets[topic]['0'][1]
 
-      var { start1,length1,start2,length2} = this.calculateStartEnd(batchsize,offset,latestOffset,highwaterMark)
+      var { start1, length1, start2, length2 } = this.calculateStartEnd(batchsize, offset, latestOffset, highwaterMark)
 
-      var content = await this.retrieveBatch(topic,start1,length1)
-      if(start2>=0) {
-        var content2 = await this.retrieveBatch(topic,start2,length2)
+      var content = await this.retrieveBatch(topic, start1, length1)
+      if (start2 >= 0) {
+        var content2 = await this.retrieveBatch(topic, start2, length2)
         content = content.concat(content2)
       }
 
-      
       return content
     },
     getAdmin: function () {
@@ -402,7 +398,7 @@ const K2Client = function (kafkanodes) {
           })
         }
       }
-    },
+    }
   }
 }
 
