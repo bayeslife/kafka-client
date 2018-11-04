@@ -80,12 +80,11 @@ describe('Given kafka server running', () => {
 			assert.equal(null, result)
 		})
 	})
-	describe.only('When multiple messages are produced', () => {
-		var topic = 'test.compact'
+	describe('When multiple messages are produced', () => {
+		var topic = 'test.topic'
 		var key = 'key'
 		var value = 'value' // value is a string
 		var group = 'user@example.com'// groups can be users who are accessing the data
-
 		var offsets
 		var consumeMessage
 		var initialOffset, latestOffset
@@ -114,4 +113,14 @@ describe('Given kafka server running', () => {
 			})
 		})
 	})
+	// describe.skip('When request messages from ', () => {
+	// 	var result
+	// 	var group = 'consumer1'
+	// 	before(async () => {
+	// 		result = await client.batchConsume(group, `testistic.statistics.all.all`, 5,22)
+	// 	})
+	// 	it('Then null is returned', async function () {
+	// 		assert.equal(result.length,5)
+	// 	})
+	// })
 })
